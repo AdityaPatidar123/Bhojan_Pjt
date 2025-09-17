@@ -1,41 +1,42 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import axios from "axios";
+import api from "../config/api";
+import toast from "react-hot-toast";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleLogin = async (e) => {
-    e.preventDefault(); // prevent page refresh
+    e.preventDefault();
     setLoading(true);
     setError("");
-    console.log(data);
-    
+
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await api.post("/auth/login", loginData);
+      toast.success(res.data.message)
+     
 
-      const data = await response.json();
+      // if (response.data.token) {
+      //   sessionStorage.setItem("authToken", response.data.token);
+      // }
 
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      // Save token if backend returns one
-      sessionStorage.setItem("authToken", data.token);
-
-      // Redirect to homepage (or dashboard)
       navigate("/");
     } catch (err) {
-      setError(err.message);
+      
+      setError(toast.err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -43,7 +44,12 @@ const LoginPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-base-200 px-4">
-      <div className="bg-base-100 p-8 rounded-2xl shadow-lg w-full max-w-md">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="bg-base-100 p-8 rounded-2xl shadow-lg w-full max-w-md"
+      >
         {/* Title */}
         <h2 className="text-3xl font-bold text-center text-base-content mb-2">
           Welcome Back
@@ -65,10 +71,11 @@ const LoginPage = () => {
             </label>
             <input
               type="email"
+              name="email"
               placeholder="Enter your email"
               className="input input-bordered w-full"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={loginData.email}
+              onChange={handleChange}
               required
             />
           </div>
@@ -79,10 +86,11 @@ const LoginPage = () => {
             </label>
             <input
               type="password"
+              name="password"
               placeholder="Enter your password"
               className="input input-bordered w-full"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={loginData.password}
+              onChange={handleChange}
               required
             />
           </div>
@@ -107,7 +115,7 @@ const LoginPage = () => {
             Sign up
           </NavLink>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };
