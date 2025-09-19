@@ -1,18 +1,21 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 
-
-export const signup = async (req, res,next) => {
+export const signup = async (req, res, next) => {
   try {
     const { fullName, email, password } = req.body;
 
     if (!fullName || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      const error = new Error("All Feilds Required");
+      error.statusCode = 400;
+      return next(error);
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      const error = new Error("User already exists");
+      error.statusCode = 400;
+      return next(error);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -23,32 +26,38 @@ export const signup = async (req, res,next) => {
     console.log("Signup Data:", { fullName, email });
     res.status(201).json({ message: "User registered successfully " });
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
 
-// Login controller
-export const login = async (req, res,next) => {
+
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      const error = new Error("All Feilds Required");
+      error.statusCode = 400;
+      return next(error);
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      const error = new Error("Invalid email or password");
+      error.statusCode = 400;
+      return next(error);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      const error = new Error("Invalid email or password");
+      error.statusCode = 400;
+      return next(error);
     }
 
     console.log("Login Data:", { email });
     res.status(200).json({ message: "Login successful" });
   } catch (err) {
-    next(err)
+    next(err);
   }
 };
