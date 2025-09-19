@@ -1,5 +1,6 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
+import genToken from "../utils/genAuthToken.js";
 
 export const signup = async (req, res, next) => {
   try {
@@ -7,7 +8,7 @@ export const signup = async (req, res, next) => {
 
     if (!fullName || !email || !password) {
       const error = new Error("All Feilds Required");
-      error.statusCode = 404;
+      error.statusCode = 401;
       return next(error);
     }
 
@@ -19,17 +20,26 @@ export const signup = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const fullNameP = fullName?.charAt(0)?.toUpperCase() || "U";
+    console.log(fullNameP);
 
-    const newUser = new User({ fullName, email, password: hashedPassword });
+    const photo = `https://placehold.co/600x400/EEE/31343C?font=poppins&text=${fullNameP}`;
+
+    const newUser = new User({
+      fullName,
+      email,
+      password: hashedPassword,
+      photo,
+    });
     await newUser.save();
 
-    console.log("Signup Data:", { fullName, email });
-    res.status(201).json({ message: "User registered successfully " });
+    res.status(200).json({
+      message: `🙏 Namaste ${fullName}, Apke liye 56 bhog tyar hai 😊`,
+    });
   } catch (err) {
     next(err);
   }
 };
-
 
 export const login = async (req, res, next) => {
   try {
@@ -37,13 +47,13 @@ export const login = async (req, res, next) => {
 
     if (!email || !password) {
       const error = new Error("All Feilds Required");
-      error.statusCode = 404;
+      error.statusCode = 401;
       return next(error);
     }
 
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
-      const error = new Error("User Not Found, Please Register");
+      const error = new Error("User Not Found, Please Signup");
       error.statusCode = 404;
       return next(error);
     }
@@ -55,8 +65,20 @@ export const login = async (req, res, next) => {
       return next(error);
     }
 
-    console.log("Login Data:", { email });
-    res.status(200).json({ message: `🙏 Namaste ${fullName}, Apke liye 56 bhog tyar hai 😊`,});
+    if (!genToken(existingUser._id, res)) {
+      const error = new Error("Unable to Login");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    res.status(200).json({
+      message: `Welcome back, ${existingUser.fullName}`,
+      data: {
+        fullName: existingUser.fullName,
+        email: existingUser.email,
+        photo: existingUser.photo,
+      },
+    });
   } catch (err) {
     next(err);
   }
