@@ -7,14 +7,14 @@ export const signup = async (req, res, next) => {
 
     if (!fullName || !email || !password) {
       const error = new Error("All Feilds Required");
-      error.statusCode = 400;
+      error.statusCode = 404;
       return next(error);
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       const error = new Error("User already exists");
-      error.statusCode = 400;
+      error.statusCode = 409;
       return next(error);
     }
 
@@ -37,26 +37,26 @@ export const login = async (req, res, next) => {
 
     if (!email || !password) {
       const error = new Error("All Feilds Required");
-      error.statusCode = 400;
+      error.statusCode = 404;
       return next(error);
     }
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      const error = new Error("Invalid email or password");
-      error.statusCode = 400;
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      const error = new Error("User Not Found, Please Register");
+      error.statusCode = 404;
       return next(error);
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, existingUser.password);
     if (!isMatch) {
-      const error = new Error("Invalid email or password");
-      error.statusCode = 400;
+      const error = new Error("Invalid Credentials");
+      error.statusCode = 401;
       return next(error);
     }
 
     console.log("Login Data:", { email });
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({ message: `🙏 Namaste ${fullName}, Apke liye 56 bhog tyar hai 😊`,});
   } catch (err) {
     next(err);
   }
