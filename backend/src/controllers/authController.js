@@ -83,3 +83,16 @@ export const login = async (req, res, next) => {
     next(err);
   }
 };
+
+export const logOut = (req, res, next) => {
+  try {
+    console.log("Performimg Logout");
+
+    res.clearCookie("BhojanLoginKey");
+    console.log("cookies Cleared");
+
+    res.status(200).json({ message: "Logout Successfull" });
+  } catch (error) {
+    next(error);
+  }
+};

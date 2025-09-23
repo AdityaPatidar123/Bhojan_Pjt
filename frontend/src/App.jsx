@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Header from "./pages/Header";
+import Header from "./components/Header";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import SignupPage from "./pages/SignupPage";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "./pages/Dashboard"
 import { Toaster } from "react-hot-toast";
 
 function App() {

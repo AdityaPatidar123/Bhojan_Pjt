@@ -1,14 +1,12 @@
 @import "tailwindcss";
 
-
-
 @plugin "flyonui" {
-   themes: all;
+  themes: all;
 }
 
 @import "flyonui/variants.css";
 
-@source "./node_modules/flyonui/flyonui.js"; 
+@source "./node_modules/flyonui/flyonui.js";
 
 body {
   font-family: var(--my-Font);
@@ -36,4 +34,24 @@ body {
 
 [data-theme="pastel"] {
   --my-Font: "Open Sans";
+}
+
+[data-theme="slack"] {
+  --my-Font: "Lato";
+}
+
+[data-theme="soft"] {
+  --my-Font: "Montserrat";
+}
+
+[data-theme="Spotify"] {
+  --my-Font: "Lato";
+}
+
+[data-theme="valorant"] {
+  --my-Font: "Work Sans";
+}
+
+[data-theme="vs Code"] {
+  --my-Font: "Fira Code";
 }

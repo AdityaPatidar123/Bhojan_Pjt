@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../config/api";
 import toast from "react-hot-toast";
@@ -112,12 +112,12 @@ const SignupPage = () => {
 
         <p className="text-center text-sm text-base-content/70 mt-4">
           Already have an account?{" "}
-          <Link
+          <NavLink
             to="/login"
             className="text-primary font-medium hover:underline"
           >
             Sign in
-          </Link>
+          </NavLink>
         </p>
       </motion.div>
     </div>

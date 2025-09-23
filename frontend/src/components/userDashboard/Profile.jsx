@@ -1,49 +1,8 @@
-import { useState } from "react";
-import { Menu, Home, Utensils, Heart, Wallet, Settings, LogOut } from "lucide-react";
-import { motion } from "framer-motion";
+import React from "react";
 
-const FoodDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  const menuItems = [
-    { name: "Home", icon: <Home className="w-5 h-5" /> },
-    { name: "Orders", icon: <Utensils className="w-5 h-5" /> },
-    { name: "Favorites", icon: <Heart className="w-5 h-5" /> },
-    { name: "Wallet", icon: <Wallet className="w-5 h-5" /> },
-    { name: "Settings", icon: <Settings className="w-5 h-5" /> },
-  ];
-
+const Profile = () => {
   return (
-    <div className="flex min-h-screen bg-base-200">
-      {/* Sidebar */}
-      <motion.aside
-        animate={{ width: sidebarOpen ? 240 : 80 }}
-        className="bg-base-100 shadow-lg p-4 flex flex-col transition-all duration-300 overflow-hidden"
-      >
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="btn btn-ghost btn-circle mb-6"
-        >
-          <Menu />
-        </button>
-        <nav className="flex-1 flex flex-col gap-2">
-          {menuItems.map((item, idx) => (
-            <button
-              key={idx}
-              className="flex items-center gap-3 btn btn-ghost justify-start"
-            >
-              {item.icon}
-              {sidebarOpen && <span>{item.name}</span>}
-            </button>
-          ))}
-        </nav>
-        <button className="btn btn-error btn-outline mt-auto flex items-center gap-2">
-          <LogOut className="w-5 h-5" />
-          {sidebarOpen && "Logout"}
-        </button>
-      </motion.aside>
-
-      {/* Main Content */}
+    <>
       <main className="flex-1 p-6">
         {/* Header */}
         <header className="flex justify-between items-center mb-6">
@@ -104,19 +63,25 @@ const FoodDashboard = () => {
                   <td>Margherita Pizza</td>
                   <td>Pizza Hut</td>
                   <td>19 Sep 2025</td>
-                  <td><span className="badge badge-success">Delivered</span></td>
+                  <td>
+                    <span className="badge badge-success">Delivered</span>
+                  </td>
                 </tr>
                 <tr>
                   <td>Paneer Butter Masala</td>
                   <td>Biryani House</td>
                   <td>18 Sep 2025</td>
-                  <td><span className="badge badge-warning">On the way</span></td>
+                  <td>
+                    <span className="badge badge-warning">On the way</span>
+                  </td>
                 </tr>
                 <tr>
                   <td>Burger Combo</td>
                   <td>McDonald's</td>
                   <td>17 Sep 2025</td>
-                  <td><span className="badge badge-info">Preparing</span></td>
+                  <td>
+                    <span className="badge badge-info">Preparing</span>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -129,7 +94,10 @@ const FoodDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="card bg-base-100 shadow-xl">
               <figure>
-                <img src="https://source.unsplash.com/400x300/?pizza" alt="Pizza" />
+                <img
+                  src="https://source.unsplash.com/400x300/?pizza"
+                  alt="Pizza"
+                />
               </figure>
               <div className="card-body">
                 <h2 className="card-title">Cheese Pizza</h2>
@@ -140,7 +108,10 @@ const FoodDashboard = () => {
 
             <div className="card bg-base-100 shadow-xl">
               <figure>
-                <img src="https://source.unsplash.com/400x300/?burger" alt="Burger" />
+                <img
+                  src="https://source.unsplash.com/400x300/?burger"
+                  alt="Burger"
+                />
               </figure>
               <div className="card-body">
                 <h2 className="card-title">Double Burger</h2>
@@ -151,7 +122,10 @@ const FoodDashboard = () => {
 
             <div className="card bg-base-100 shadow-xl">
               <figure>
-                <img src="https://source.unsplash.com/400x300/?biryani" alt="Biryani" />
+                <img
+                  src="https://source.unsplash.com/400x300/?biryani"
+                  alt="Biryani"
+                />
               </figure>
               <div className="card-body">
                 <h2 className="card-title">Chicken Biryani</h2>
@@ -162,8 +136,8 @@ const FoodDashboard = () => {
           </div>
         </section>
       </main>
-    </div>
+    </>
   );
 };
 
-export default FoodDashboard;
+export default Profile;
