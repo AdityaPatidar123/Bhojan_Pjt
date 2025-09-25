@@ -1,13 +1,12 @@
 import express from "express";
-import { signup, login ,logOut,ResetPassword,SendOTP} from "../controllers/authController.js";
-import { Protect } from "../middlewares/authMiddleware.js";
+import { signup, login ,logOut,ResetPassword,SendOTP ,verifyOTP,ForgetPassword} from "../controllers/authController.js";
+import { Protect ,ProtectFp } from "../middlewares/authMiddleware.js";
+
 
 const router = express.Router();
 
-// Signup route
 router.post("/signup", signup);
 
-// Login route
 router.post("/login", login);
 
 router.get("/logOut", logOut);
@@ -15,5 +14,9 @@ router.get("/logOut", logOut);
 router.patch("/resetpassword", Protect, ResetPassword);
 
 router.post("/sendOtp",SendOTP);
+
+router.post("/verifyOtp", verifyOTP);
+
+router.post("/forgetpassword", ProtectFp, ForgetPassword);
 
 export default router;

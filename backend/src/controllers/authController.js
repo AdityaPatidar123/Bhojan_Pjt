@@ -1,6 +1,8 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
-import genToken from "../utils/genAuthToken.js";
+import { genToken, genTokenFp } from "../utils/genAuthToken.js";
+import OTP from "../models/OTPModel.js";
+import sendEmail from "../utils/sendEmail.js"
 
 export const signup = async (req, res, next) => {
   try {
@@ -31,7 +33,6 @@ export const signup = async (req, res, next) => {
       password: hashedPassword,
       photo,
     });
-    
 
     res.status(200).json({
       message: `🙏 Namaste ${fullName}, Apke liye 56 bhog tyar hai 😊`,
@@ -171,7 +172,7 @@ export const SendOTP = async (req, res, next) => {
 
     const emailStatus = await sendEmail(email, "OTP for Verification", message);
 
-    const hashOTP = bcrypt.hash(otp, 10);
+    const hashOTP =await bcrypt.hash(otp.toString(), 10);
     await OTP.create({
       email,
       otp: hashOTP,
@@ -182,6 +183,58 @@ export const SendOTP = async (req, res, next) => {
     } else {
       res.status(404).json({ message: "Unable to sent OTP" });
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyOTP = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    const isOTPAvailable = await OTP.findOne({ email });
+    if (!isOTPAvailable) {
+      const error = new Error("OTP expired. Try Again");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    const isValid = await bcrypt.compare(otp.toString(), isOTPAvailable.otp);
+
+    if (!isValid) {
+      const error = new Error("Invalid OTP. Try Again");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    if (!genTokenFp(email, res)) {
+      const error = new Error("Unable to Complete the Process");
+      error.statusCode = 403;
+      return next(error);
+    }
+
+    await OTP.deleteOne({ email });
+
+    res.status(200).json({ message: "OTP Verification Successfull" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const ForgetPassword = async (req, res, next) => {
+  try {
+    console.log("hello1");
+    const { newpassword } = req.body;
+    const currentUser = req.user;
+    console.log("hello2");
+    const hashedPassword = await bcrypt.hash(newpassword, 10);
+    currentUser.password = hashedPassword;
+    console.log("hello3");
+    await currentUser.save();
+    console.log("hello4");
+    
+    res.clearCookie("BhojanFp");
+    res.status(200).json({ message: "Password Change Successful" });
   } catch (error) {
     next(error);
   }

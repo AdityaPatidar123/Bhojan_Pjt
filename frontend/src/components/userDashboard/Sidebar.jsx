@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { motion } from "framer-motion";
-import {toast} from "react-hot-toast"
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-hot-toast";
 import api from "../../config/api";
 import {
   Menu,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 const Sidebar = ({ active, setActive }) => {
-  const { user, setUser, setIsLogin } = useAuth();
+  const { setUser, setIsLogin } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleLogout = async () => {
@@ -24,7 +24,7 @@ const Sidebar = ({ active, setActive }) => {
       setUser("");
       setIsLogin(false);
       sessionStorage.removeItem("BhojanUser");
-      toast.success("Logout Succesfull");
+      toast.success("Logout Successful");
     } catch (error) {
       console.log(error);
       toast.error(
@@ -43,37 +43,64 @@ const Sidebar = ({ active, setActive }) => {
   ];
 
   return (
-    <>
-      <motion.aside
-        animate={{ width: sidebarOpen ? 240 : 80 }}
-        className="bg-base-100 shadow-lg p-4 flex flex-col transition-all duration-1 overflow-hidden "
+    <motion.aside
+      animate={{ width: sidebarOpen ? 240 : 80 }}
+      className="bg-base-100 shadow-lg p-4 flex flex-col transition-all duration-[0.5ms] overflow-hidden h-[90vh]"
+    >
+      {/* Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="btn btn-ghost btn-circle mb-6"
+        aria-label="Toggle Sidebar"
       >
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="btn btn-ghost btn-circle mb-6"
-        >
-          <Menu />
-        </button>
-        <nav className="flex-1 flex flex-col gap-2">
-          {menuItems.map((item, idx) => (
-            <button
-              key={idx}
-              className="flex items-center gap-3 btn btn-ghost justify-start"
+        <Menu />
+      </button>
+
+      {/* Menu Items */}
+      <nav className="flex-1 flex flex-col gap-2">
+        {menuItems.map((item, idx) => (
+          <button
+            key={idx}
+            className="flex items-center gap-3 btn btn-ghost justify-start"
+            aria-label={item.name}
+          >
+            {item.icon}
+            <AnimatePresence>
+              {sidebarOpen && (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.name}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+        ))}
+      </nav>
+
+      {/* Logout */}
+      <button
+        className="btn btn-error btn-outline mt-auto flex items-center gap-2"
+        onClick={handleLogout}
+        aria-label="Logout"
+      >
+        <LogOut className="w-5 h-5" />
+        <AnimatePresence>
+          {sidebarOpen && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              {item.icon}
-              {sidebarOpen && <span>{item.name}</span>}
-            </button>
-          ))}
-        </nav>
-        <button
-          className="btn btn-error btn-outline mt-auto flex items-center gap-2 mb-5"
-          onClick={handleLogout}
-        >
-          <LogOut className="w-5 h-5" />
-          {sidebarOpen && "Logout"}
-        </button>
-      </motion.aside>
-    </>
+              Logout
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </button>
+    </motion.aside>
   );
 };
 

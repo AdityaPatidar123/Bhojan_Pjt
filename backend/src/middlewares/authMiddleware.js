@@ -34,7 +34,7 @@ export const Protect = async (req, res, next) => {
 
 export const ProtectFp = async (req, res, next) => {
   try {
-    const token = req.cookies.Fp;
+    const token =  req.cookies.BhojanFp;
 
     const decode = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
@@ -45,7 +45,7 @@ export const ProtectFp = async (req, res, next) => {
       throw error;
     }
 
-    const verifiedUser = await User.findById(decode.id);
+    const verifiedUser = await User.findOne(decode.email);
 
     if (!verifiedUser) {
       const error = new Error("Not Authorized, Invalid User");
