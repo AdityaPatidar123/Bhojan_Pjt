@@ -2,7 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt";
 import { genToken, genTokenFp } from "../utils/genAuthToken.js";
 import OTP from "../models/OTPModel.js";
-import sendEmail from "../utils/sendEmail.js"
+import sendEmail from "../utils/sendEmail.js";
 
 export const signup = async (req, res, next) => {
   try {
@@ -172,7 +172,7 @@ export const SendOTP = async (req, res, next) => {
 
     const emailStatus = await sendEmail(email, "OTP for Verification", message);
 
-    const hashOTP =await bcrypt.hash(otp.toString(), 10);
+    const hashOTP = await bcrypt.hash(otp.toString(), 10);
     await OTP.create({
       email,
       otp: hashOTP,
@@ -223,16 +223,14 @@ export const verifyOTP = async (req, res, next) => {
 
 export const ForgetPassword = async (req, res, next) => {
   try {
-    console.log("hello1");
     const { newpassword } = req.body;
     const currentUser = req.user;
-    console.log("hello2");
+
     const hashedPassword = await bcrypt.hash(newpassword, 10);
     currentUser.password = hashedPassword;
-    console.log("hello3");
+
     await currentUser.save();
-    console.log("hello4");
-    
+
     res.clearCookie("BhojanFp");
     res.status(200).json({ message: "Password Change Successful" });
   } catch (error) {
