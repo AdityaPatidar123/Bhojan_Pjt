@@ -3,7 +3,7 @@ import User from "../models/user.js";
 
 export const Protect = async (req, res, next) => {
   try {
-    const token = req.cookies.BhojanLoginKey;
+    const token = req.cookies.LoginKey;
 
     const decode = jwt.verify(token, process.env.JWT_SECRET_KEY);
 

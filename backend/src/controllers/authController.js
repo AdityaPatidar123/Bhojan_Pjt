@@ -237,3 +237,22 @@ export const ForgetPassword = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const currentUser = req.user;
+    const { fullName, photo } = req.body;
+    if (!fullName || !photo) {
+      const error = new Error("All Fields Required");
+      error.statusCode = 404;
+      return next(error);
+    }
+    currentUser.fullName = fullName;
+
+    currentUser.photo = photo;
+    await currentUser.save();
+    res.status(200).json({ message: "Profile Updated Successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
