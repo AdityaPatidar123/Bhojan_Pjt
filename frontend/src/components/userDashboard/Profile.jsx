@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "../../context/authContext";
+import { useAuth } from "../../context/AuthContext";
 
 import { FaUserSlash, FaUserEdit } from "react-icons/fa";
 import { GoPasskeyFill } from "react-icons/go";

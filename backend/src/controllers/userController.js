@@ -5,11 +5,12 @@ export const Update = async (req, res, next) => {
     const { fullName, gender, phone, dob, foodType } = req.body;
     
     
-    if (!fullName || !gender || !phone || !dob || !foodType) {
+    if (!fullName || !phone || !dob || !foodType || !gender) {
       const error = new Error("All Fields are Required");
       error.statusCode = 404;
       return next(error);
     }
+
     console.log("Update Request Body:", req.body);
     const currentUser = req.user;
     console.log("Current User:", currentUser);
@@ -48,7 +49,8 @@ export const Update = async (req, res, next) => {
     currentUser.foodType = foodType;
 
     await currentUser.save();
-
+    console.log("Updated User:", currentUser);
+    
     res.status(200).json({
       success: true,
       message: "Profile Updated Successfully",

@@ -22,7 +22,7 @@ const themes = [
 ];
 
 const Header = () => {
-  const { user, isLogin } = useAuth();
+  const { user, isLogin, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [theme, setTheme] = useState(
@@ -92,7 +92,9 @@ const Header = () => {
           {isLogin && user ? (
             <div
               className="flex items-center gap-3 cursor-pointer"
-              onClick={() => navigate("/dashboard")}
+              onClick={() =>
+                isAdmin ? navigate("/adminDashboard") : navigate("/dashboard")
+              }
             >
               {/* Avatar */}
               <div className="avatar">

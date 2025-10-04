@@ -3,15 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import api from "../../config/api";
-import {
-  Menu,
-  Home,
-  Utensils,
-  User,
-  MapPin,
-  Phone,
-  LogOut,
-} from "lucide-react";
+import {Menu, Grid, ChefHat, Truck, Users, MessageCircle,LogOut } from "lucide-react";
 
 const Sidebar = ({ active, setActive }) => {
   const { user, setUser, setIsLogin } = useAuth();
@@ -34,36 +26,35 @@ const Sidebar = ({ active, setActive }) => {
   };
 
   const menuItems = [
-    { name: "Overview", icon: <Home className="w-5 h-5" /> },
-    { name: "Orders", icon: <Utensils className="w-5 h-5" /> },
-    { name: "Profile", icon: <User className="w-5 h-5" /> },
-    { name: "Address", icon: <MapPin className="w-5 h-5" /> },
-    { name: "Contact Us", icon: <Phone className="w-5 h-5" /> },
+    { name: "Overview", icon: <Grid className="w-5 h-5" /> },
+    { name: "Manage Restaurants", icon: <ChefHat className="w-5 h-5" /> },
+    { name: "Manage Riders", icon: <Truck className="w-5 h-5" /> },
+    { name: "Manage Customers", icon:<Users className="w-5 h-5" /> },
+    { name: "Manage Feedback", icon: <MessageCircle className="w-5 h-5" /> },
   ];
 
   return (
     <motion.aside
       animate={{ width: sidebarOpen ? 240 : 80 }}
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
-      className="backdrop-blur-md bg-base-100/80 shadow-xl flex flex-col overflow-hidden h-[90vh] rounded-2xl border border-base-300"
+      className="backdrop-blur-md bg-base-100/80 shadow-xl flex flex-col overflow-hidden h-screen rounded-2xl border border-base-300"
     >
-      {/* Toggle Button (top-right) */}
+      {/* Top Toggle */}
       <div className="flex justify p-4">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="btn btn-ghost btn-circle"
-          aria-label="Toggle Sidebar"
+          className="btn btn-ghost btn-circle hover:bg-base-200 transition"
         >
           <Menu className="w-6 h-6" />
         </button>
       </div>
 
-      {/* Full-Width Profile Section */}
-      <div className="w-full flex flex-col items-center text-center px-4 py-6 border-b border-base-300">
+      {/* Profile Section */}
+      <div className="w-full flex flex-col items-center text-center px-4 py-6 border-b border-base-300 relative group">
         <motion.img
-          src={user.photo}
-          alt={user.fullName}
-          className="rounded-full shadow-md border border-base-300"
+          src={user?.photo || "/default-avatar.png"}
+          alt={user?.fullName || "Guest User"}
+          className="rounded-full shadow-md border border-base-300 cursor-pointer "
           animate={{
             width: sidebarOpen ? 80 : 40,
             height: sidebarOpen ? 80 : 40,
@@ -71,6 +62,7 @@ const Sidebar = ({ active, setActive }) => {
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
         />
 
+        {/* Name & Email */}
         <AnimatePresence>
           {sidebarOpen && (
             <motion.div
@@ -78,30 +70,30 @@ const Sidebar = ({ active, setActive }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.3 }}
-              className="mt-3 w-full"
+              className="mt-3 w-full "
             >
-              <span className="block font-semibold text-sm truncate">
-                {user?.fullName || "Guest User"}
-              </span>
-              <span className="block text-xs text-base-content/70 truncate">
-                {user?.email || "guest@example.com"}
-              </span>
+              <span className="block font-semibold text-sm truncate">{user?.fullName || "Guest User"}</span>
+              <span className="block text-xs text-base-content/70 truncate">{user?.email || "guest@example.com"}</span>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Tooltip for collapsed sidebar */}
+        {!sidebarOpen && (
+          <div className="absolute left-full ml-3 px-3 py-2 text-xs rounded-md bg-base-300 text-base-content opacity-0 group-hover:opacity-100 transition-shadow shadow-lg whitespace-nowrap">
+            <span className="block font-semibold">{user?.fullName}</span>
+            <span className="block text-xs">{user?.email}</span>
+          </div>
+        )}
       </div>
 
-      {/* Menu Items */}
+      {/* Menu */}
       <nav className="flex-1 flex flex-col gap-2 p-4">
         {menuItems.map((item, idx) => {
           const isActive = active === item.name;
           return (
-            <motion.div
-              key={idx}
-              whileHover={{ scale: 1.03 }}
-              className="relative group"
-            >
-              {/* Active Accent Bar */}
+            <motion.div key={idx} whileHover={{ scale: 1.03 }} className="relative group">
+              {/* Active Indicator */}
               {isActive && (
                 <motion.div
                   layoutId="active-indicator"
@@ -112,11 +104,7 @@ const Sidebar = ({ active, setActive }) => {
               <button
                 onClick={() => setActive(item.name)}
                 className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl transition-all duration-200 relative
-                  ${
-                    isActive
-                      ? "bg-primary text-primary-content shadow-md"
-                      : "hover:bg-base-200 text-base-content"
-                  }`}
+                  ${isActive ? "bg-primary text-primary-content shadow-md" : "hover:bg-base-200 text-base-content"}`}
               >
                 {item.icon}
                 <AnimatePresence>
@@ -134,8 +122,9 @@ const Sidebar = ({ active, setActive }) => {
                 </AnimatePresence>
               </button>
 
+              {/* Tooltip when collapsed */}
               {!sidebarOpen && (
-                <span className="absolute left-full ml-3 px-2 py-1 text-xs rounded-md bg-base-300 text-base-content opacity-0 group-hover:opacity-100 transition whitespace-nowrap shadow-md">
+                <span className="absolute left-full ml-3 px-2 py-1 text-xs rounded-md bg-base-300 text-base-content opacity-0 group-hover:opacity-100 transition shadow-md whitespace-nowrap">
                   {item.name}
                 </span>
               )}
@@ -150,17 +139,11 @@ const Sidebar = ({ active, setActive }) => {
         whileTap={{ scale: 0.95 }}
         className="btn btn-error m-4 flex items-center gap-2 rounded-xl"
         onClick={handleLogout}
-        aria-label="Logout"
       >
         <LogOut className="w-5 h-5" />
         <AnimatePresence>
           {sidebarOpen && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="font-medium"
-            >
+            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="font-medium">
               Logout
             </motion.span>
           )}
