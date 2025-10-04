@@ -47,6 +47,8 @@ const EditProfileModal = ({ isOpen, onClose }) => {
     }
 
     try {
+      console.log("Submitting form data:",formData);
+      
       const res = await api.put("/user/update", formData, {
         headers: {
           "Content-Type": "multipart/form-data",

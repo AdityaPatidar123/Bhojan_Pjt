@@ -3,11 +3,12 @@ import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import api from "../../config/api";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Menu,
   Home,
   Utensils,
-  Heart,
+  User,
   Wallet,
   Settings,
   LogOut,
@@ -37,7 +38,7 @@ const Sidebar = ({ active, setActive }) => {
   const menuItems = [
     { name: "Home", icon: <Home className="w-5 h-5" /> },
     { name: "Orders", icon: <Utensils className="w-5 h-5" /> },
-    { name: "Favorites", icon: <Heart className="w-5 h-5" /> },
+    { name: "Profile", icon: <User className="w-5 h-5" /> },
     { name: "Wallet", icon: <Wallet className="w-5 h-5" /> },
     { name: "Settings", icon: <Settings className="w-5 h-5" /> },
   ];
@@ -58,27 +59,29 @@ const Sidebar = ({ active, setActive }) => {
 
       {/* Menu Items */}
       <nav className="flex-1 flex flex-col gap-2">
-        {menuItems.map((item, idx) => (
-          <button
-            key={idx}
-            className="flex items-center gap-3 btn btn-ghost justify-start"
-            aria-label={item.name}
-          >
-            {item.icon}
-            <AnimatePresence>
-              {sidebarOpen && (
-                <motion.span
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {item.name}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-        ))}
+        
+          {menuItems.map((item, idx) => (
+            <button
+              key={idx}
+              className="flex items-center gap-3 btn btn-ghost justify-start"
+              aria-label={item.name}
+            >
+              {item.icon}
+              <AnimatePresence>
+                {sidebarOpen && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {item.name}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+          ))}
+       
       </nav>
 
       {/* Logout */}
