@@ -11,7 +11,7 @@ import Overview from "../../components/userDashboard/Overview";
 const AdminDashboard = () => {
   const { isLogin } = useAuth();
   const navigate = useNavigate();
-  const [active, setActive] = useState("overview");
+  const [active, setActive] = useState("Overview");
 
   useEffect(() => {
     !isLogin && navigate("/");

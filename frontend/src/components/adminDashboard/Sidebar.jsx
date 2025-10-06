@@ -37,7 +37,7 @@ const Sidebar = ({ active, setActive }) => {
     <motion.aside
       animate={{ width: sidebarOpen ? 240 : 80 }}
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
-      className="backdrop-blur-md bg-base-100/80 shadow-xl flex flex-col overflow-hidden h-screen rounded-2xl border border-base-300"
+      className="backdrop-blur-md bg-base-100/80 shadow-xl flex flex-col overflow-hidden h-[90vh] rounded-2xl border border-base-300"
     >
       {/* Top Toggle */}
       <div className="flex justify p-4">

@@ -24,7 +24,7 @@ const ManageRestaurants = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="p-6 bg-base-100 rounded-3xl shadow-xl min-h-screen flex flex-col w-full"
+      className="p-6 bg-base-100 rounded-3xl shadow-xl min-h-screen flex flex-col w-full "
     >
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">

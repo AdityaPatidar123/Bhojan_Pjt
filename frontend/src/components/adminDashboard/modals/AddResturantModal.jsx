@@ -1,8 +1,15 @@
 import React, { useState } from "react";
+import { RxCrossCircled } from "react-icons/rx";
+import api from "../../../config/api";
+import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
-const AddResturantModal = ({ isOpen, onClose, onAdd }) => {
-  const [form, setForm] = useState({
+const steps = ["Basic Info", "Manager", "Location", "Images"];
+
+const AddRestaurantModal = ({ isOpen, onClose }) => {
+  const [step, setStep] = useState(0);
+
+  const [resturantData, setResturantData] = useState({
     resturantName: "",
     address: "",
     lat: "",
@@ -11,13 +18,11 @@ const AddResturantModal = ({ isOpen, onClose, onAdd }) => {
     foodType: "veg",
     managerName: "",
     managerPhone: "",
-    managerImage: "",
     receptionPhone: "",
     email: "",
-    images: [],
     status: "active",
-    openingTime: "09:00 AM",
-    closingTime: "09:00 PM",
+    openingTime: "",
+    closingTime: "",
     averageCostForTwo: 0,
     openingStatus: "open",
     resturantType: "all",
@@ -28,127 +33,506 @@ const AddResturantModal = ({ isOpen, onClose, onAdd }) => {
     ifscCode: "",
   });
 
+  const [managerImagePreview, setManagerImagePreview] = useState(null);
+  const [restaurantImagesPreview, setRestaurantImagesPreview] = useState([]);
+  const [managerImageFiles, setManagerImageFiles] = useState("");
+  const [restaurantImageFiles, setRestaurantImageFiles] = useState([]);
+
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file") {
-      if (name === "images") {
-        setForm((prev) => ({ ...prev, images: Array.from(files) }));
-      } else {
-        setForm((prev) => ({ ...prev, [name]: files[0] }));
-      }
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    setResturantData((prev) => ({
+      ...prev,
+      [name]: type === "number" ? Number(value) : value,
+    }));
+  };
+
+  const handleRestaurantImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    files.forEach((file) => {
+      const FileUrl = URL.createObjectURL(file);
+      setRestaurantImagesPreview((prev) => [...prev, FileUrl]);
+    });
+    setRestaurantImageFiles(files);
+  };
+
+  const handleManagerImageChange = (e) => {
+    const files = e.target.files;
+    setManagerImagePreview(URL.createObjectURL(files[0]));
+    setManagerImageFiles(files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const registerFromData = new FormData();
+      Object.keys(resturantData).forEach((key) =>
+        registerFromData.append(key, resturantData[key])
+      );
+      registerFromData.append("managerImage", managerImageFiles);
+      restaurantImageFiles.forEach((file) =>
+        registerFromData.append("restaurantImages", file)
+      );
+
+      const res = await api.post("/admin/addResturant", registerFromData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success(res.data.message);
+      onClose();
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error?.response?.status + " | " + error?.response?.data?.message ||
+          "Unknown Error From Server"
+      );
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onAdd && onAdd(form);
-    setForm({
-      resturantName: "",
-      address: "",
-      lat: "",
-      lon: "",
-      cuisine: "",
-      foodType: "veg",
-      managerName: "",
-      managerPhone: "",
-      managerImage: "",
-      receptionPhone: "",
-      email: "",
-      images: [],
-      status: "active",
-      openingTime: "09:00 AM",
-      closingTime: "09:00 PM",
-      averageCostForTwo: 0,
-      openingStatus: "open",
-      resturantType: "all",
-      GSTNo: "",
-      FSSAINo: "",
-      upiId: "",
-      bankAccNumber: "",
-      ifscCode: "",
-    });
-    onClose && onClose();
-  };
+  const nextStep = () =>
+    setStep((prev) => Math.min(prev + 1, steps.length - 1));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
 
-  if (!isOpen) return null;
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      >
+      {isOpen && (
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="bg-base-100 rounded-2xl shadow-2xl p-8 w-full max-w-md"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center"
         >
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold text-primary">Add Restaurant</h3>
-            <button className="btn btn-sm btn-ghost" onClick={onClose}>
-              ✕
-            </button>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
-            <input type="text" name="resturantName" placeholder="Restaurant Name" className="input w-full" value={form.resturantName} onChange={handleChange} required />
-            <input type="text" name="address" placeholder="Address" className="input w-full" value={form.address} onChange={handleChange} required />
-            <div className="flex gap-2">
-              <input type="text" name="lat" placeholder="Latitude" className="input w-full" value={form.lat} onChange={handleChange} required />
-              <input type="text" name="lon" placeholder="Longitude" className="input w-full" value={form.lon} onChange={handleChange} required />
+          <motion.div
+            initial={{ scale: 0.9, y: -30, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.9, y: -30, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+            className="bg-white rounded-2xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center px-6 py-4 bg-primary text-primary-content rounded-t-2xl">
+              <h2 className="text-lg font-semibold">Add New Restaurant</h2>
+              <button onClick={onClose} className="hover:opacity-80">
+                <RxCrossCircled className="text-2xl" />
+              </button>
             </div>
-            <input type="text" name="cuisine" placeholder="Cuisine" className="input w-full" value={form.cuisine} onChange={handleChange} required />
-            <select name="foodType" className="select w-full" value={form.foodType} onChange={handleChange} required>
-              <option value="veg">Vegetarian</option>
-              <option value="non-veg">Non-Vegetarian</option>
-              <option value="eggetarian">Eggetarian</option>
-              <option value="vegan">Vegan</option>
-              <option value="jain">Jain</option>
-              <option value="any">Any</option>
-            </select>
-            <input type="text" name="managerName" placeholder="Manager Name" className="input w-full" value={form.managerName} onChange={handleChange} required />
-            <input type="text" name="managerPhone" placeholder="Manager Phone" className="input w-full" value={form.managerPhone} onChange={handleChange} required />
-            <input type="text" name="receptionPhone" placeholder="Reception Phone" className="input w-full" value={form.receptionPhone} onChange={handleChange} required />
-            <input type="email" name="email" placeholder="Email" className="input w-full" value={form.email} onChange={handleChange} required />
-            <input type="file" name="managerImage" className="file-input w-full" onChange={handleChange} required />
-            <input type="file" name="images" className="file-input w-full" multiple onChange={handleChange} required />
-            <select name="status" className="select w-full" value={form.status} onChange={handleChange} required>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <div className="flex gap-2">
-              <input type="text" name="openingTime" placeholder="Opening Time" className="input w-full" value={form.openingTime} onChange={handleChange} required />
-              <input type="text" name="closingTime" placeholder="Closing Time" className="input w-full" value={form.closingTime} onChange={handleChange} required />
+
+            {/* Stepper */}
+            <div className="flex justify-between items-center px-6 py-3 border-b">
+              {steps.map((s, i) => (
+                <div key={i} className="flex-1 text-center">
+                  <div
+                    className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full text-sm font-bold ${
+                      i === step
+                        ? "bg-primary text-white"
+                        : i < step
+                        ? "bg-green-500 text-white"
+                        : "bg-gray-200 text-gray-500"
+                    }`}
+                  >
+                    {i + 1}
+                  </div>
+                  <p
+                    className={`mt-1 text-xs ${
+                      i <= step ? "text-primary font-medium" : "text-gray-400"
+                    }`}
+                  >
+                    {s}
+                  </p>
+                </div>
+              ))}
             </div>
-            <input type="number" name="averageCostForTwo" placeholder="Average Cost For Two" className="input w-full" value={form.averageCostForTwo} onChange={handleChange} required />
-            <select name="openingStatus" className="select w-full" value={form.openingStatus} onChange={handleChange} required>
-              <option value="open">Open</option>
-              <option value="closed">Closed</option>
-            </select>
-            <select name="resturantType" className="select w-full" value={form.resturantType} onChange={handleChange} required>
-              <option value="dine-in">Dine-In</option>
-              <option value="takeaway">Takeaway</option>
-              <option value="delivery">Delivery</option>
-              <option value="all">All</option>
-            </select>
-            <input type="text" name="GSTNo" placeholder="GST Number" className="input w-full" value={form.GSTNo} onChange={handleChange} required />
-            <input type="text" name="FSSAINo" placeholder="FSSAI Number" className="input w-full" value={form.FSSAINo} onChange={handleChange} required />
-            <input type="text" name="upiId" placeholder="UPI ID" className="input w-full" value={form.upiId} onChange={handleChange} required />
-            <input type="text" name="bankAccNumber" placeholder="Bank Account Number" className="input w-full" value={form.bankAccNumber} onChange={handleChange} required />
-            <input type="text" name="ifscCode" placeholder="IFSC Code" className="input w-full" value={form.ifscCode} onChange={handleChange} required />
-            <div className="flex justify-end gap-2 mt-6">
-              <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Add</button>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto px-6 py-6">
+              <form className="h-full flex flex-col" onSubmit={handleSubmit}>
+                <AnimatePresence mode="wait">
+                  {/* Step 1: Basic Info */}
+                  {step === 0 && (
+                    <motion.div
+                      key="step1"
+                      initial={{ opacity: 0, x: -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 50 }}
+                      transition={{ duration: 0.3 }}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    >
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Restaurant Name
+                          </span>
+                        </label>
+                        <input
+                          name="resturantName"
+                          className="input input-bordered w-full"
+                          value={resturantData.resturantName}
+                          onChange={handleChange}
+                          placeholder="Enter restaurant name"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Cuisine
+                          </span>
+                        </label>
+                        <input
+                          name="cuisine"
+                          className="input input-bordered w-full"
+                          value={resturantData.cuisine}
+                          onChange={handleChange}
+                          placeholder="E.g. Indian, Italian"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Food Type
+                          </span>
+                        </label>
+                        <select
+                          name="foodType"
+                          className="select select-bordered w-full"
+                          value={resturantData.foodType}
+                          onChange={handleChange}
+                        >
+                          <option value="veg">Veg</option>
+                          <option value="non-veg">Non-Veg</option>
+                          <option value="eggetarian">Eggetarian</option>
+                          <option value="jain">Jain</option>
+                          <option value="vegan">Vegan</option>
+                          <option value="any">Any</option>
+                        </select>
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Average Cost For Two
+                          </span>
+                        </label>
+                        <input
+                          name="averageCostForTwo"
+                          type="number"
+                          className="input input-bordered w-full"
+                          value={resturantData.averageCostForTwo}
+                          onChange={handleChange}
+                          placeholder="₹500"
+                        />
+                      </div>
+                      {/* Opening Time */}
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Opening Time
+                          </span>
+                        </label>
+                        <input
+                          name="openingTime"
+                          type="time"
+                          className="input input-bordered w-full"
+                          value={resturantData.openingTime}
+                          onChange={handleChange}
+                        />
+                      </div>
+
+                      {/* Closing Time */}
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Closing Time
+                          </span>
+                        </label>
+                        <input
+                          name="closingTime"
+                          type="time"
+                          className="input input-bordered w-full"
+                          value={resturantData.closingTime}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 2: Manager */}
+                  {step === 1 && (
+                    <motion.div
+                      key="step2"
+                      initial={{ opacity: 0, x: -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 50 }}
+                      transition={{ duration: 0.3 }}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    >
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Manager Name
+                          </span>
+                        </label>
+                        <input
+                          name="managerName"
+                          className="input input-bordered w-full"
+                          value={resturantData.managerName}
+                          onChange={handleChange}
+                          placeholder="Enter manager name"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Manager Phone
+                          </span>
+                        </label>
+                        <input
+                          name="managerPhone"
+                          className="input input-bordered w-full"
+                          value={resturantData.managerPhone}
+                          onChange={handleChange}
+                          placeholder="+91 9876543210"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Reception Phone
+                          </span>
+                        </label>
+                        <input
+                          name="receptionPhone"
+                          className="input input-bordered w-full"
+                          value={resturantData.receptionPhone}
+                          onChange={handleChange}
+                          placeholder="+91 9876543210"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">Email</span>
+                        </label>
+                        <input
+                          name="email"
+                          type="email"
+                          className="input input-bordered w-full"
+                          value={resturantData.email}
+                          onChange={handleChange}
+                          placeholder="example@email.com"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 3: Location */}
+                  {step === 2 && (
+                    <motion.div
+                      key="step3"
+                      initial={{ opacity: 0, x: -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 50 }}
+                      transition={{ duration: 0.3 }}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                    >
+                      <div className="form-control md:col-span-2">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Address
+                          </span>
+                        </label>
+                        <textarea
+                          name="address"
+                          className="textarea textarea-bordered w-full"
+                          value={resturantData.address}
+                          onChange={handleChange}
+                          placeholder="Enter complete address"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Latitude
+                          </span>
+                        </label>
+                        <input
+                          name="lat"
+                          className="input input-bordered w-full"
+                          value={resturantData.lat}
+                          onChange={handleChange}
+                          placeholder="23.2599"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Longitude
+                          </span>
+                        </label>
+                        <input
+                          name="lon"
+                          className="input input-bordered w-full"
+                          value={resturantData.lon}
+                          onChange={handleChange}
+                          placeholder="77.4126"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">GST No</span>
+                        </label>
+                        <input
+                          name="GSTNo"
+                          className="input input-bordered w-full"
+                          value={resturantData.GSTNo}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            FSSAI No
+                          </span>
+                        </label>
+                        <input
+                          name="FSSAINo"
+                          className="input input-bordered w-full"
+                          value={resturantData.FSSAINo}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">UPI ID</span>
+                        </label>
+                        <input
+                          name="upiId"
+                          className="input input-bordered w-full"
+                          value={resturantData.upiId}
+                          onChange={handleChange}
+                          placeholder="example@upi"
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Bank Account Number
+                          </span>
+                        </label>
+                        <input
+                          name="bankAccNumber"
+                          className="input input-bordered w-full"
+                          value={resturantData.bankAccNumber}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            IFSC Code
+                          </span>
+                        </label>
+                        <input
+                          name="ifscCode"
+                          className="input input-bordered w-full"
+                          value={resturantData.ifscCode}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 4: Images */}
+                  {step === 3 && (
+                    <motion.div
+                      key="step4"
+                      initial={{ opacity: 0, x: -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 50 }}
+                      transition={{ duration: 0.3 }}
+                      className="grid gap-6"
+                    >
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Manager Image
+                          </span>
+                        </label>
+                        <input
+                          type="file"
+                          className="file-input file-input-bordered w-full"
+                          onChange={handleManagerImageChange}
+                        />
+                        {managerImagePreview && (
+                          <img
+                            src={managerImagePreview}
+                            alt="Manager Preview"
+                            className="mt-3 w-32 h-32 object-cover rounded-lg shadow"
+                          />
+                        )}
+                      </div>
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text font-medium">
+                            Restaurant Images
+                          </span>
+                        </label>
+                        <input
+                          type="file"
+                          multiple
+                          className="file-input file-input-bordered w-full"
+                          onChange={handleRestaurantImageChange}
+                        />
+                        <div className="flex flex-wrap gap-3 mt-3">
+                          {restaurantImagesPreview.map((src, idx) => (
+                            <img
+                              key={idx}
+                              src={src}
+                              className="w-24 h-24 object-cover rounded-lg shadow"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Step Controls */}
+                <div
+                  className={`mt-auto flex items-center pt-6 ${
+                    step === step.length - 1
+                      ? "justify-evenly"
+                      : "justify-between"
+                  }  `}
+                >
+                  {step > 0 ? (
+                    <button
+                      type="button"
+                      className="btn btn-outline"
+                      onClick={prevStep}
+                    >
+                      Back
+                    </button>
+                  ) : (
+                    <span />
+                  )}
+
+                  {step < steps.length - 1 ? (
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={nextStep}
+                    >
+                      Next
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn btn-success ">
+                      Save Restaurant
+                    </button>
+                  )}
+                </div>
+              </form>
             </div>
-          </form>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </AnimatePresence>
   );
 };
 
-export default AddResturantModal;
+export default AddRestaurantModal;
