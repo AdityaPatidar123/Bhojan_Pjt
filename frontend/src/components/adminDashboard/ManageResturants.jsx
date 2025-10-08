@@ -2,21 +2,36 @@ import React, { useState } from "react";
 import AddResturantModal from "./modals/AddResturantModal";
 import { motion } from "framer-motion";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import EditResturantModal from "./modals/EditRestaurantModal";
 
 const restaurants = [
-  { id: 1, name: "Spicy Villa", owner: "Amit Sharma", address: "123 Main St, Indore", phone: "9876543210", status: "Active" },
-  { id: 2, name: "Green Bowl", owner: "Priya Verma", address: "456 Park Ave, Bhopal", phone: "9123456780", status: "Inactive" },
+  {
+    id: 1,
+    name: "Spicy Villa",
+    owner: "Amit Sharma",
+    address: "123 Main St, Indore",
+    phone: "9876543210",
+    status: "Active",
+  },
+  {
+    id: 2,
+    name: "Green Bowl",
+    owner: "Priya Verma",
+    address: "456 Park Ave, Bhopal",
+    phone: "9123456780",
+    status: "Inactive",
+  },
 ];
 
 const ManageRestaurants = () => {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [isAddRestaurantModalOpen, setIsAddRestaurantModalOpen] =
+    useState(false);
+  const [isEditRestaurantModalOpen, setIsEditRestaurantModalOpen] =
+    useState(false);
   const [restaurantList, setRestaurantList] = useState(restaurants);
 
   const handleAddRestaurant = (newRest) => {
-    setRestaurantList((prev) => [
-      { ...newRest, id: Date.now() },
-      ...prev,
-    ]);
+    setRestaurantList((prev) => [{ ...newRest, id: Date.now() }, ...prev]);
   };
 
   return (
@@ -31,14 +46,14 @@ const ManageRestaurants = () => {
         <h2 className="text-2xl font-bold text-primary">Manage Restaurants</h2>
         <button
           className="btn btn-primary flex items-center gap-2 rounded-full px-4 py-2 shadow-md hover:scale-105 transition-transform"
-          onClick={() => setModalOpen(true)}
+          onClick={() => setIsAddRestaurantModalOpen(true)}
         >
           <Plus className="w-5 h-5" /> Add Restaurant
         </button>
       </div>
       <AddResturantModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        isOpen={isAddRestaurantModalOpen}
+        onClose={() => setIsAddRestaurantModalOpen(false)}
         onAdd={handleAddRestaurant}
       />
 
@@ -82,9 +97,17 @@ const ManageRestaurants = () => {
                 </td>
                 <td>
                   <div className="flex gap-2">
-                    <button className="btn btn-sm btn-outline btn-info flex items-center gap-1 rounded-full hover:scale-105 transition-transform">
+                    <button
+                      className="btn btn-sm btn-outline btn-info flex items-center gap-1 rounded-full hover:scale-105 transition-transform "
+                      onClick={() => setIsEditRestaurantModalOpen(true)}
+                    >
                       <Pencil className="w-4 h-4" /> Edit
                     </button>
+                    <EditResturantModal
+                      isOpen={isEditRestaurantModalOpen}
+                      onClose={() => setIsEditRestaurantModalOpen(false)}
+                      onAdd={handleAddRestaurant}
+                    />
                     <button className="btn btn-sm btn-outline btn-error flex items-center gap-1 rounded-full hover:scale-105 transition-transform">
                       <Trash2 className="w-4 h-4" /> Delete
                     </button>
@@ -96,8 +119,6 @@ const ManageRestaurants = () => {
         </table>
       </div>
     </motion.div>
-
-    
   );
 };
 

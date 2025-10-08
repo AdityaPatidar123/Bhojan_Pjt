@@ -105,7 +105,7 @@ const AddRestaurantModal = ({ isOpen, onClose }) => {
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.9, y: -30, opacity: 0 }}
             transition={{ type: "spring", stiffness: 100, damping: 15 }}
-            className="bg-white rounded-2xl shadow-lg w-full max-w-4xl h-[90vh] flex flex-col"
+            className="bg-white rounded-2xl shadow-lg w-full max-w-4xl max-h-[90vh] flex flex-col"
           >
             {/* Header */}
             <div className="flex justify-between items-center px-6 py-4 bg-primary text-primary-content rounded-t-2xl">
