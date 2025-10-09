@@ -7,7 +7,7 @@ const router = express.Router();
 
 const upload = multer();
 router.post("/login", AdminLogin);
-router.get("/getallresturants", AdminProtect, GetAllResturants);
+router.get("/getallrestaurants", AdminProtect, GetAllResturants);
 router.post(
   "/addResturant",
   AdminProtect,

@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AddResturantModal from "./modals/AddResturantModal";
 import { motion } from "framer-motion";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus,Eye } from "lucide-react";
 import EditResturantModal from "./modals/EditRestaurantModal";
+import { toast } from "react-hot-toast";
+import api from "../../config/api";
+import ViewRestaurantModal from "./modals/ViewRestaurant";
 
-const restaurants = [
+const dummyData = [
   {
     id: 1,
     name: "Spicy Villa",
@@ -28,11 +31,30 @@ const ManageRestaurants = () => {
     useState(false);
   const [isEditRestaurantModalOpen, setIsEditRestaurantModalOpen] =
     useState(false);
-  const [restaurantList, setRestaurantList] = useState(restaurants);
+  const [isViewRestaurantModalOpen, setIsViewRestaurantModalOpen] =
+    useState(false);
+  const [viewRestaurant, setViewRestaurant] = useState(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [restaurantsList, setRestaurantsList] = useState(dummyData);
 
-  const handleAddRestaurant = (newRest) => {
-    setRestaurantList((prev) => [{ ...newRest, id: Date.now() }, ...prev]);
+  const fetchResturants = async () => {
+    try {
+      const response = await api.get("/admin/getallrestaurants");
+      toast.success(response.data.message);
+      setRestaurantsList(response.data.data);
+      console.log(response.data.data);
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        error?.response?.status + " | " + error?.response?.data?.message ||
+          "Unknown Error From Server"
+      );
+      setRestaurantsList(dummyData); // Fallback to dummy data on error
+    }
   };
+  useEffect(() => {
+    if (!isAddRestaurantModalOpen) fetchResturants();
+  }, [isAddRestaurantModalOpen]);
 
   return (
     <motion.div
@@ -54,7 +76,6 @@ const ManageRestaurants = () => {
       <AddResturantModal
         isOpen={isAddRestaurantModalOpen}
         onClose={() => setIsAddRestaurantModalOpen(false)}
-        onAdd={handleAddRestaurant}
       />
 
       {/* Table */}
@@ -71,18 +92,18 @@ const ManageRestaurants = () => {
             </tr>
           </thead>
           <tbody>
-            {restaurantList.map((rest) => (
+            {restaurantsList.map((rest) => (
               <motion.tr
-                key={rest.id}
+                key={rest._id || rest.id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
                 className="hover:bg-base-200/50 transition-colors rounded-xl"
               >
-                <td className="font-semibold">{rest.name}</td>
-                <td>{rest.owner}</td>
+                <td className="font-semibold">{rest.resturantName}</td>
+                <td>{rest.managerName}</td>
                 <td>{rest.address}</td>
-                <td>{rest.phone}</td>
+                <td>{rest.managerPhone}</td>
                 <td>
                   <motion.span
                     whileHover={{ scale: 1.1 }}
@@ -96,17 +117,37 @@ const ManageRestaurants = () => {
                   </motion.span>
                 </td>
                 <td>
-                  <div className="flex gap-2">
+                  <div className="flex gap-5">
                     <button
                       className="btn btn-sm btn-outline btn-info flex items-center gap-1 rounded-full hover:scale-105 transition-transform "
-                      onClick={() => setIsEditRestaurantModalOpen(true)}
+                      onClick={() => {
+                        setSelectedRestaurant(rest);
+                        setIsEditRestaurantModalOpen(true);
+                      }}
                     >
                       <Pencil className="w-4 h-4" /> Edit
                     </button>
                     <EditResturantModal
                       isOpen={isEditRestaurantModalOpen}
                       onClose={() => setIsEditRestaurantModalOpen(false)}
-                      onAdd={handleAddRestaurant}
+                      restaurant={selectedRestaurant}
+                    />
+
+                    <button
+                      className="btn btn-sm btn-outline btn-secondary flex items-center gap-1 rounded-full hover:scale-105 transition-transform"
+                      onClick={() => {
+                        setViewRestaurant(rest);
+                        setIsViewRestaurantModalOpen(true);
+                      }}
+                    >
+                      <Eye size={16} />
+                      View
+                    </button>
+
+                    <ViewRestaurantModal
+                      isOpen={isViewRestaurantModalOpen}
+                      onClose={() => setIsViewRestaurantModalOpen(false)}
+                      restaurant={viewRestaurant}
                     />
                     <button className="btn btn-sm btn-outline btn-error flex items-center gap-1 rounded-full hover:scale-105 transition-transform">
                       <Trash2 className="w-4 h-4" /> Delete

@@ -38,7 +38,10 @@ const SignupPage = () => {
       toast.success(res.data.message);
       navigate("/login");
     } catch (err) {
-      setError(toast.err.response?.data?.message || "Unknow Error From Server");
+      toast.error(
+        err?.response?.status + " | " + err?.response?.data?.message ||
+          "Unknown Error From Server"
+      );
     } finally {
       setLoading(false);
     }

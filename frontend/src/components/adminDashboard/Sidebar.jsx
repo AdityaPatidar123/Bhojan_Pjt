@@ -3,7 +3,15 @@ import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
 import api from "../../config/api";
-import {Menu, Grid, ChefHat, Truck, Users, MessageCircle,LogOut } from "lucide-react";
+import {
+  Menu,
+  Grid,
+  ChefHat,
+  Truck,
+  Users,
+  MessageCircle,
+  LogOut,
+} from "lucide-react";
 
 const Sidebar = ({ active, setActive }) => {
   const { user, setUser, setIsLogin } = useAuth();
@@ -29,7 +37,7 @@ const Sidebar = ({ active, setActive }) => {
     { name: "Overview", icon: <Grid className="w-5 h-5" /> },
     { name: "Manage Restaurants", icon: <ChefHat className="w-5 h-5" /> },
     { name: "Manage Riders", icon: <Truck className="w-5 h-5" /> },
-    { name: "Manage Customers", icon:<Users className="w-5 h-5" /> },
+    { name: "Manage Customers", icon: <Users className="w-5 h-5" /> },
     { name: "Manage Feedback", icon: <MessageCircle className="w-5 h-5" /> },
   ];
 
@@ -54,7 +62,7 @@ const Sidebar = ({ active, setActive }) => {
         <motion.img
           src={user?.photo || "/default-avatar.png"}
           alt={user?.fullName || "Guest User"}
-          className="rounded-full shadow-md border border-base-300 cursor-pointer "
+          className="rounded-full  object-cover shadow-md border border-base-300 cursor-pointer "
           animate={{
             width: sidebarOpen ? 80 : 40,
             height: sidebarOpen ? 80 : 40,
@@ -72,8 +80,12 @@ const Sidebar = ({ active, setActive }) => {
               transition={{ duration: 0.3 }}
               className="mt-3 w-full "
             >
-              <span className="block font-semibold text-sm truncate">{user?.fullName || "Guest User"}</span>
-              <span className="block text-xs text-base-content/70 truncate">{user?.email || "guest@example.com"}</span>
+              <span className="block font-semibold text-sm truncate">
+                {user?.fullName || "Guest User"}
+              </span>
+              <span className="block text-xs text-base-content/70 truncate">
+                {user?.email || "guest@example.com"}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -92,7 +104,11 @@ const Sidebar = ({ active, setActive }) => {
         {menuItems.map((item, idx) => {
           const isActive = active === item.name;
           return (
-            <motion.div key={idx} whileHover={{ scale: 1.03 }} className="relative group">
+            <motion.div
+              key={idx}
+              whileHover={{ scale: 1.03 }}
+              className="relative group"
+            >
               {/* Active Indicator */}
               {isActive && (
                 <motion.div
@@ -104,7 +120,11 @@ const Sidebar = ({ active, setActive }) => {
               <button
                 onClick={() => setActive(item.name)}
                 className={`flex items-center gap-3 px-3 py-2 w-full rounded-xl transition-all duration-200 relative
-                  ${isActive ? "bg-primary text-primary-content shadow-md" : "hover:bg-base-200 text-base-content"}`}
+                  ${
+                    isActive
+                      ? "bg-primary text-primary-content shadow-md"
+                      : "hover:bg-base-200 text-base-content"
+                  }`}
               >
                 {item.icon}
                 <AnimatePresence>
@@ -143,7 +163,12 @@ const Sidebar = ({ active, setActive }) => {
         <LogOut className="w-5 h-5" />
         <AnimatePresence>
           {sidebarOpen && (
-            <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="font-medium">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="font-medium"
+            >
               Logout
             </motion.span>
           )}

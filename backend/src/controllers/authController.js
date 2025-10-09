@@ -53,6 +53,11 @@ export const login = async (req, res, next) => {
     }
 
     const existingUser = await User.findOne({ email });
+    if (!existingUser?.isActive === "inactive") {
+      const error = new Error("Account Deactivated. Contact Support");
+      error.statusCode = 403;
+      return next(error);
+    }
     if (!existingUser) {
       const error = new Error("User Not Found, Please Signup");
       error.statusCode = 404;
@@ -78,6 +83,10 @@ export const login = async (req, res, next) => {
         fullName: existingUser.fullName,
         email: existingUser.email,
         photo: existingUser.photo,
+        gender: existingUser.gender,
+        phone: existingUser.phone,
+        dob: existingUser.dob,
+        foodType: existingUser.foodType,
       },
     });
   } catch (err) {

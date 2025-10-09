@@ -521,7 +521,7 @@ const AddRestaurantModal = ({ isOpen, onClose }) => {
                       Next
                     </button>
                   ) : (
-                    <button type="submit" className="btn btn-success ">
+                    <button type="submit" className="btn btn-success m-auto ">
                       Save Restaurant
                     </button>
                   )}

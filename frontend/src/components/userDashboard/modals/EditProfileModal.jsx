@@ -45,29 +45,29 @@ const EditProfileModal = ({ isOpen, onClose }) => {
     if (photo) {
       formData.append("photo", photo);
     }
-   
-   
-    try {
-      
 
+    try {
       const res = await api.put("/user/update", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       toast.success(res.data.message);
+
       setPhoto("");
       setPreview("");
-      setUser(res.data.data);
-      // Use updated user data from server to reset editUser
+      await setUser(res.data.data);
+      sessionStorage.setItem("BhojanUser", JSON.stringify(res.data.data));
+      console.log(user);
       setEditUser({
-        fullName: res.data.data.fullName || "",
-        email: res.data.data.email || "",
-        gender: res.data.data.gender || "",
-        phone: res.data.data.phone || "",
-        dob: res.data.data.dob || "",
-        foodType: res.data.data.foodType || "",
+        fullName: user.fullName || "",
+        email: user.email || "",
+        gender: user.gender || "",
+        phone: user.phone || "",
+        dob: user.dob || "",
+        foodType: user.foodType || "",
       });
+
       onClose();
     } catch (error) {
       console.log(error);
@@ -142,6 +142,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                   </label>
                   <select
                     name="gender"
+                    id=""
                     className="select select-bordered w-full"
                     value={editUser.gender}
                     onChange={handleChange}
@@ -165,6 +166,7 @@ const EditProfileModal = ({ isOpen, onClose }) => {
                   </label>
                   <select
                     name="foodType"
+                    id=""
                     className="select select-bordered w-full"
                     value={editUser.foodType}
                     onChange={handleChange}

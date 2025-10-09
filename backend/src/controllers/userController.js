@@ -3,8 +3,7 @@ import cloudinary from "../config/cloudinary.js";
 export const Update = async (req, res, next) => {
   try {
     const { fullName, gender, phone, dob, foodType } = req.body;
-    
-    
+
     if (!fullName || !phone || !dob || !foodType || !gender) {
       const error = new Error("All Fields are Required");
       error.statusCode = 404;
@@ -15,9 +14,7 @@ export const Update = async (req, res, next) => {
     const currentUser = req.user;
     console.log("Current User:", currentUser);
     const uploadedPicture = req.file || "";
-    
-    
-    
+
     if (uploadedPicture) {
       // Upload to Cloudinary
       if (currentUser.PhotoPublicId) {
@@ -50,7 +47,7 @@ export const Update = async (req, res, next) => {
 
     await currentUser.save();
     console.log("Updated User:", currentUser);
-    
+
     res.status(200).json({
       success: true,
       message: "Profile Updated Successfully",
@@ -64,6 +61,18 @@ export const Update = async (req, res, next) => {
         foodType: currentUser.foodType,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const Deactivate = async (req, res, next) => {
+  try {
+    const currentUser = req.user;
+    currentUser.status = "inactive";
+    await currentUser.save();
+    console.log("Deactivated User:", currentUser);
+    res.status(200).json({ message: "User Deactivated Successfully" });
   } catch (error) {
     next(error);
   }

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
+import api from "../../config/api"; 
 
 import { FaUserSlash, FaUserEdit } from "react-icons/fa";
 import { GoPasskeyFill } from "react-icons/go";
@@ -11,7 +13,18 @@ const Profile = () => {
 
   const [isResetPassModalOpen, setIsResetPassModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
-
+  const handleDeactivate = async () => {
+    try {
+      const res = await api.put("/user/deactivate");
+      console.log(res);
+      toast.success(res.data.message);
+    } catch (error) {
+      toast.error(
+        error?.response?.status + " | " + error?.response?.data?.message ||
+          "Unknown Error From Server"
+      );
+    }
+  };
   return (
     <>
       <div className="p-6 max-w-4xl mx-auto">
@@ -71,7 +84,10 @@ const Profile = () => {
         </div>
 
         <div className="flex justify-center gap-6 mt-8">
-          <button className="btn btn-error flex items-center gap-2">
+          <button
+            className="btn btn-error flex items-center gap-2"
+            onClick={handleDeactivate}
+          >
             <FaUserSlash />
             <span>Deactivate</span>
           </button>

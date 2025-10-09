@@ -36,13 +36,16 @@ const LoginPage = () => {
       setUser(res.data.data);
       setIsLogin(true);
       sessionStorage.setItem("BhojanUser", JSON.stringify(res.data.data));
-      navigate("/dashboard");
+      navigate("/dashboard"); 
+      
     } catch (error) {
       toast.error(
         error?.response?.status + " | " + error?.response?.data?.message ||
           "Unknown Error From Server"
       );
-    }
+    }finally {
+      setLoading(false);
+    } 
   };
 
   return (
