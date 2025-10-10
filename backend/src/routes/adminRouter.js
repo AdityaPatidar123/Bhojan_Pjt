@@ -1,5 +1,11 @@
 import express from "express";
-import { AdminLogin ,AddResturant,GetAllResturants} from "../controllers/adminController.js";
+import {
+  AdminLogin,
+  AddResturant,
+  GetAllResturants,
+  UpdateResturant,
+  DeleteResturant,
+} from "../controllers/adminController.js";
 import { AdminProtect } from "../middlewares/authMiddleware.js";
 import multer from "multer";
 
@@ -14,5 +20,14 @@ router.post(
   upload.fields([{ name: "managerImage" }, { name: "restaurantImages" }]),
   AddResturant
 );
+
+router.put(
+  "/updateResturant/:id",
+  AdminProtect,
+  upload.fields([{ name: "managerImage" }, { name: "restaurantImages" }]),
+  UpdateResturant
+);
+
+router.delete("/deleteRestaurant/:id", AdminProtect, DeleteResturant);
 
 export default router;

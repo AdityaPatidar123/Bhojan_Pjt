@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AddResturantModal from "./modals/AddResturantModal";
 import { motion } from "framer-motion";
-import { Pencil, Trash2, Plus,Eye } from "lucide-react";
+import { Pencil, Trash2, Plus, Eye, Hand } from "lucide-react";
 import EditResturantModal from "./modals/EditRestaurantModal";
 import { toast } from "react-hot-toast";
 import api from "../../config/api";
@@ -52,9 +52,27 @@ const ManageRestaurants = () => {
       setRestaurantsList(dummyData); // Fallback to dummy data on error
     }
   };
+
+  const HandleDelete = (id) => async () => {
+    try {
+      const response = await api.delete(`/admin/deleteRestaurant/${id}`);
+      toast.success(response.data.message);
+      fetchResturants();
+    } catch (error) {
+      toast.error(
+        error?.response?.status + " | " + error?.response?.data?.message ||
+          "Unknown Error From Server"
+      );
+    }
+  };
+
   useEffect(() => {
-    if (!isAddRestaurantModalOpen) fetchResturants();
-  }, [isAddRestaurantModalOpen]);
+    if (!isAddRestaurantModalOpen && !isEditRestaurantModalOpen) fetchResturants();
+   
+  }, [isAddRestaurantModalOpen, isEditRestaurantModalOpen]);
+  // useEffect(() => {
+  //   if (!isEditRestaurantModalOpen) fetchResturants();
+  // }, [isEditRestaurantModalOpen]);
 
   return (
     <motion.div
@@ -149,7 +167,10 @@ const ManageRestaurants = () => {
                       onClose={() => setIsViewRestaurantModalOpen(false)}
                       restaurant={viewRestaurant}
                     />
-                    <button className="btn btn-sm btn-outline btn-error flex items-center gap-1 rounded-full hover:scale-105 transition-transform">
+                    <button
+                      className="btn btn-sm btn-outline btn-error flex items-center gap-1 rounded-full hover:scale-105 transition-transform"
+                      onClick={HandleDelete(rest._id || rest.id)}
+                    >
                       <Trash2 className="w-4 h-4" /> Delete
                     </button>
                   </div>
